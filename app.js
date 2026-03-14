@@ -160,6 +160,9 @@ window.addEventListener('keydown', (e) => {
 	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
 	}
+	if (e.key === ' ' && hero && hero.canFire()) {
+		hero.fire();
+	}
 });
 
 window.addEventListener('keyup', (e) => {
@@ -318,8 +321,7 @@ function resetGame() {
 			if (keysPressed['ArrowDown'])  hero.y += 5;
 			if (keysPressed['ArrowLeft'])  hero.x -= 5;
 			if (keysPressed['ArrowRight']) hero.x += 5;
-			if (keysPressed[' '] && hero.canFire()) hero.fire();
-			drawPoints();
+				drawPoints();
 			drawLife();
 			updateGameObjects();
 			drawGameObjects(ctx);
@@ -344,7 +346,6 @@ window.onload = async () => {
 		if (keysPressed['ArrowDown'])  hero.y += 3;
 		if (keysPressed['ArrowLeft'])  hero.x -= 3;
 		if (keysPressed['ArrowRight']) hero.x += 3;
-		if (keysPressed[' '] && hero.canFire()) hero.fire();
 		drawPoints();
 		drawLife();
 		updateGameObjects();
