@@ -160,13 +160,13 @@ window.addEventListener('keydown', (e) => {
 	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
 	}
-	if (e.key === ' ' && !e.repeat && hero && hero.canFire()) {
-		hero.fire();
-	}
 });
 
 window.addEventListener('keyup', (e) => {
 	keysPressed[e.key] = false;
+	if (e.key === ' ' && hero && hero.canFire()) {
+		hero.fire();
+	}
 });
 
 function createEnemies() {
