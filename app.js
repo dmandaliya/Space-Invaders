@@ -60,16 +60,8 @@ class Hero extends GameObject {
 	}
 	fire() {
 		gameObjects.push(new Laser(this.x + 45, this.y - 10));
-		this.cooldown = 80;
-
-		let id = setInterval(() => {
-			if (this.cooldown > 0) {
-				this.cooldown -= 80;
-				if (this.cooldown === 0) {
-					clearInterval(id);
-				}
-			}
-		}, 80);
+		this.cooldown = 100;
+		setTimeout(() => { this.cooldown = 0; }, 100);
 	}
 	canFire() {
 		return this.cooldown === 0;
@@ -109,7 +101,7 @@ class Laser extends GameObject {
 		this.img = laserImg;
 		let id = setInterval(() => {
 			if (this.y > 0) {
-				this.y -= 15;
+				this.y -= 30;
 			} else {
 				this.dead = true;
 				clearInterval(id);
@@ -168,9 +160,6 @@ window.addEventListener('keydown', (e) => {
 	}
 	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
-	}
-	if (e.key === ' ') {
-		eventEmitter.emit(Messages.KEY_EVENT_SPACE);
 	}
 });
 
@@ -237,11 +226,6 @@ function initGame() {
 		resetGame();
 	});
 
-	eventEmitter.on(Messages.KEY_EVENT_SPACE, () => {
-		if (hero.canFire()) {
-			hero.fire();
-		}
-	});
 
 	eventEmitter.on(Messages.COLLISION_ENEMY_LASER, (_, { first, second }) => {
 		first.dead = true;
@@ -331,15 +315,16 @@ function resetGame() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.fillStyle = 'black';
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
-			if (keysPressed['ArrowUp'])    hero.y -= 8;
-			if (keysPressed['ArrowDown'])  hero.y += 8;
-			if (keysPressed['ArrowLeft'])  hero.x -= 8;
-			if (keysPressed['ArrowRight']) hero.x += 8;
+			if (keysPressed['ArrowUp'])    hero.y -= 5;
+			if (keysPressed['ArrowDown'])  hero.y += 5;
+			if (keysPressed['ArrowLeft'])  hero.x -= 5;
+			if (keysPressed['ArrowRight']) hero.x += 5;
+			if (keysPressed[' '] && hero.canFire()) hero.fire();
 			drawPoints();
 			drawLife();
 			updateGameObjects();
 			drawGameObjects(ctx);
-		}, 100);
+		}, 16);
 	}
 }
 
@@ -356,13 +341,14 @@ window.onload = async () => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		if (keysPressed['ArrowUp'])    hero.y -= 8;
-		if (keysPressed['ArrowDown'])  hero.y += 8;
-		if (keysPressed['ArrowLeft'])  hero.x -= 8;
-		if (keysPressed['ArrowRight']) hero.x += 8;
+		if (keysPressed['ArrowUp'])    hero.y -= 5;
+		if (keysPressed['ArrowDown'])  hero.y += 5;
+		if (keysPressed['ArrowLeft'])  hero.x -= 5;
+		if (keysPressed['ArrowRight']) hero.x += 5;
+		if (keysPressed[' '] && hero.canFire()) hero.fire();
 		drawPoints();
 		drawLife();
 		updateGameObjects();
 		drawGameObjects(ctx);
-	}, 100);
+	}, 16);
 };
