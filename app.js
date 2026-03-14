@@ -80,7 +80,7 @@ class Enemy extends GameObject {
 		this.type = 'Enemy';
 		let id = setInterval(() => {
 			if (this.y < canvas.height - this.height) {
-				this.y += 5;
+				this.y += 2;
 			} else {
 				clearInterval(id);
 			}
