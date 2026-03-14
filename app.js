@@ -60,8 +60,8 @@ class Hero extends GameObject {
 	}
 	fire() {
 		gameObjects.push(new Laser(this.x + 45, this.y - 10));
-		this.cooldown = 100;
-		setTimeout(() => { this.cooldown = 0; }, 100);
+		this.cooldown = 300;
+		setTimeout(() => { this.cooldown = 0; }, 300);
 	}
 	canFire() {
 		return this.cooldown === 0;
@@ -84,12 +84,11 @@ class Enemy extends GameObject {
 		this.type = 'Enemy';
 		let id = setInterval(() => {
 			if (this.y < canvas.height - this.height) {
-				this.y += 5;
+				this.y += 10;
 			} else {
-				console.log('Stopped at', this.y);
 				clearInterval(id);
 			}
-		}, 300);
+		}, 200);
 	}
 }
 
@@ -341,10 +340,10 @@ window.onload = async () => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		if (keysPressed['ArrowUp'])    hero.y -= 5;
-		if (keysPressed['ArrowDown'])  hero.y += 5;
-		if (keysPressed['ArrowLeft'])  hero.x -= 5;
-		if (keysPressed['ArrowRight']) hero.x += 5;
+		if (keysPressed['ArrowUp'])    hero.y -= 3;
+		if (keysPressed['ArrowDown'])  hero.y += 3;
+		if (keysPressed['ArrowLeft'])  hero.x -= 3;
+		if (keysPressed['ArrowRight']) hero.x += 3;
 		if (keysPressed[' '] && hero.canFire()) hero.fire();
 		drawPoints();
 		drawLife();
