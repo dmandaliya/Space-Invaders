@@ -160,7 +160,7 @@ window.addEventListener('keydown', (e) => {
 	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
 	}
-	if (e.key === ' ' && hero && hero.canFire()) {
+	if (e.key === ' ' && !e.repeat && hero && hero.canFire()) {
 		hero.fire();
 	}
 });
