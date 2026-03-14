@@ -55,8 +55,8 @@ class Hero extends GameObject {
 	}
 	fire() {
 		gameObjects.push(new Laser(this.x + 45, this.y - 10));
-		this.cooldown = 500;
-		setTimeout(() => { this.cooldown = 0; }, 500);
+		this.cooldown = 600;
+		setTimeout(() => { this.cooldown = 0; }, 600);
 	}
 	canFire() {
 		return this.cooldown === 0;
@@ -78,13 +78,14 @@ class Enemy extends GameObject {
 		this.width = 98;
 		this.height = 50;
 		this.type = 'Enemy';
+		// slow descent: 1px every 500ms
 		let id = setInterval(() => {
 			if (this.y < canvas.height - this.height) {
-				this.y += 2;
+				this.y += 1;
 			} else {
 				clearInterval(id);
 			}
-		}, 300);
+		}, 500);
 	}
 }
 
@@ -121,42 +122,43 @@ function intersectRect(r1, r2) {
 const Messages = {
 	KEY_EVENT_ENTER: 'KEY_EVENT_ENTER',
 	COLLISION_ENEMY_LASER: 'COLLISION_ENEMY_LASER',
-	COLLISION_ENEMY_HERO: 'COLLISION_ENEMY_HERO',
+	COLLISION_ENEMY_HERO:  'COLLISION_ENEMY_HERO',
 	GAME_END_LOSS: 'GAME_END_LOSS',
-	GAME_END_WIN: 'GAME_END_WIN',
+	GAME_END_WIN:  'GAME_END_WIN',
 };
 
 let heroImg, enemyImg, laserImg, lifeImg, canvas, ctx;
 let gameObjects = [];
-/** @type {Hero} */
 let hero;
 let eventEmitter = new EventEmitter();
 
-// Track which keys are held for smooth movement
-/** @type {{ [key: string]: boolean }} */
+// held-key tracking for smooth movement
 const keysPressed = {};
 
-// Prevent firing more than once per space press
-let spaceConsumed = false;
+// prevents firing more than once per space press
+let spaceDown = false;
 
 window.addEventListener('keydown', (e) => {
-	keysPressed[e.key] = true;
-	// Prevent page scrolling
+	// prevent page scroll
 	if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
 		e.preventDefault();
 	}
-	// Reset fire flag on each fresh press
-	if (e.key === ' ') spaceConsumed = false;
-	if (e.key === 'Enter') eventEmitter.emit(Messages.KEY_EVENT_ENTER);
+	keysPressed[e.key] = true;
+	if (e.key === 'Enter') {
+		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
+	}
+	// fire only on the very first keydown (not on key-repeat)
+	if (e.key === ' ' && !spaceDown) {
+		spaceDown = true;
+		if (hero && hero.canFire()) {
+			hero.fire();
+		}
+	}
 });
 
 window.addEventListener('keyup', (e) => {
 	keysPressed[e.key] = false;
-	// Fire once when space is released (one press = one shot)
-	if (e.key === ' ' && !spaceConsumed && hero && hero.canFire()) {
-		spaceConsumed = true;
-		hero.fire();
-	}
+	if (e.key === ' ') spaceDown = false;  // ready for next press
 });
 
 function createEnemies() {
@@ -181,7 +183,7 @@ function createHero() {
 
 function updateGameObjects() {
 	const enemies = gameObjects.filter((go) => go.type === 'Enemy');
-	const lasers = gameObjects.filter((go) => go.type === 'Laser');
+	const lasers  = gameObjects.filter((go) => go.type === 'Laser');
 
 	enemies.forEach((enemy) => {
 		if (intersectRect(hero.rectFromGameObject(), enemy.rectFromGameObject())) {
@@ -240,9 +242,9 @@ function endGame(win) {
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		if (win) {
-			displayMessage('Victory!!! Pew Pew... - Press [Enter] to start a new game', 'green');
+			displayMessage('Victory! Press [Enter] to play again', 'green');
 		} else {
-			displayMessage('You died! Press [Enter] to start a new game');
+			displayMessage('You died! Press [Enter] to play again');
 		}
 	}, 200);
 }
@@ -255,7 +257,7 @@ function initGame() {
 	eventEmitter.on(Messages.KEY_EVENT_ENTER, () => { resetGame(); });
 
 	eventEmitter.on(Messages.COLLISION_ENEMY_LASER, (_, { first, second }) => {
-		first.dead = true;
+		first.dead  = true;
 		second.dead = true;
 		hero.incrementPoints();
 		if (isEnemiesDead()) eventEmitter.emit(Messages.GAME_END_WIN);
@@ -271,7 +273,7 @@ function initGame() {
 		if (isEnemiesDead()) eventEmitter.emit(Messages.GAME_END_WIN);
 	});
 
-	eventEmitter.on(Messages.GAME_END_WIN, () => { endGame(true); });
+	eventEmitter.on(Messages.GAME_END_WIN,  () => { endGame(true); });
 	eventEmitter.on(Messages.GAME_END_LOSS, () => { endGame(false); });
 }
 
@@ -281,7 +283,7 @@ function runGameLoop() {
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		// Smooth movement while arrow keys are held
+		// smooth movement — hold arrow key to move
 		if (keysPressed['ArrowUp'])    hero.y = Math.max(0, hero.y - 3);
 		if (keysPressed['ArrowDown'])  hero.y = Math.min(canvas.height - hero.height, hero.y + 3);
 		if (keysPressed['ArrowLeft'])  hero.x = Math.max(0, hero.x - 3);
@@ -298,6 +300,7 @@ function resetGame() {
 	if (gameLoopId) {
 		clearInterval(gameLoopId);
 		eventEmitter.clear();
+		spaceDown = false;
 		initGame();
 		gameLoopId = runGameLoop();
 	}
@@ -306,10 +309,10 @@ function resetGame() {
 window.onload = async () => {
 	canvas = document.getElementById('canvas');
 	ctx = canvas.getContext('2d');
-	heroImg = await loadTexture('assets/player.png');
+	heroImg  = await loadTexture('assets/player.png');
 	enemyImg = await loadTexture('assets/enemyShip.png');
 	laserImg = await loadTexture('assets/laserRed.png');
-	lifeImg = await loadTexture('assets/life.png');
+	lifeImg  = await loadTexture('assets/life.png');
 
 	initGame();
 	gameLoopId = runGameLoop();
