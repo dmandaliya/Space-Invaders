@@ -149,6 +149,7 @@ let heroImg,
 
 /** @type {{ [key: string]: boolean }} */
 const keysPressed = {};
+let spaceConsumed = false;
 
 window.addEventListener('keydown', (e) => {
 	keysPressed[e.key] = true;
@@ -157,6 +158,7 @@ window.addEventListener('keydown', (e) => {
 			e.preventDefault();
 			break;
 	}
+	if (e.key === ' ') spaceConsumed = false;
 	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
 	}
@@ -164,7 +166,8 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('keyup', (e) => {
 	keysPressed[e.key] = false;
-	if (e.key === ' ' && hero && hero.canFire()) {
+	if (e.key === ' ' && !spaceConsumed && hero && hero.canFire()) {
+		spaceConsumed = true;
 		hero.fire();
 	}
 });
