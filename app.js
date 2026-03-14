@@ -60,16 +60,16 @@ class Hero extends GameObject {
 	}
 	fire() {
 		gameObjects.push(new Laser(this.x + 45, this.y - 10));
-		this.cooldown = 500;
+		this.cooldown = 150;
 
 		let id = setInterval(() => {
 			if (this.cooldown > 0) {
-				this.cooldown -= 100;
+				this.cooldown -= 50;
 				if (this.cooldown === 0) {
 					clearInterval(id);
 				}
 			}
-		}, 200);
+		}, 50);
 	}
 	canFire() {
 		return this.cooldown === 0;
@@ -161,21 +161,21 @@ const keysPressed = {};
 
 window.addEventListener('keydown', (e) => {
 	keysPressed[e.key] = true;
-	switch (e.keyCode) {
-		case 37: case 39: case 38: case 40: case 32:
+	switch (e.key) {
+		case 'ArrowUp': case 'ArrowDown': case 'ArrowLeft': case 'ArrowRight': case ' ':
 			e.preventDefault();
 			break;
 	}
 	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
 	}
+	if (e.key === ' ') {
+		eventEmitter.emit(Messages.KEY_EVENT_SPACE);
+	}
 });
 
 window.addEventListener('keyup', (e) => {
 	keysPressed[e.key] = false;
-	if (e.key === ' ') {
-		eventEmitter.emit(Messages.KEY_EVENT_SPACE);
-	}
 });
 
 function createEnemies() {
