@@ -152,39 +152,29 @@ let heroImg,
 	canvas,
 	ctx,
 	gameObjects = [],
+	/** @type {Hero} */
 	hero,
 	eventEmitter = new EventEmitter();
 
-// EVENTS
-let onKeyDown = function (e) {
+/** @type {{ [key: string]: boolean }} */
+const keysPressed = {};
+
+window.addEventListener('keydown', (e) => {
+	keysPressed[e.key] = true;
 	switch (e.keyCode) {
-		case 37:
-		case 39:
-		case 38:
-		case 40: // Arrow keys
-		case 32:
+		case 37: case 39: case 38: case 40: case 32:
 			e.preventDefault();
-			break; // Space
-		default:
 			break;
 	}
-};
-
-window.addEventListener('keydown', onKeyDown);
-
-window.addEventListener('keyup', (evt) => {
-	if (evt.key === 'ArrowUp') {
-		eventEmitter.emit(Messages.KEY_EVENT_UP);
-	} else if (evt.key === 'ArrowDown') {
-		eventEmitter.emit(Messages.KEY_EVENT_DOWN);
-	} else if (evt.key === 'ArrowLeft') {
-		eventEmitter.emit(Messages.KEY_EVENT_LEFT);
-	} else if (evt.key === 'ArrowRight') {
-		eventEmitter.emit(Messages.KEY_EVENT_RIGHT);
-	} else if (evt.keyCode === 32) {
-		eventEmitter.emit(Messages.KEY_EVENT_SPACE);
-	} else if (evt.key === 'Enter') {
+	if (e.key === 'Enter') {
 		eventEmitter.emit(Messages.KEY_EVENT_ENTER);
+	}
+});
+
+window.addEventListener('keyup', (e) => {
+	keysPressed[e.key] = false;
+	if (e.key === ' ') {
+		eventEmitter.emit(Messages.KEY_EVENT_SPACE);
 	}
 });
 
@@ -245,22 +235,6 @@ function initGame() {
 
 	eventEmitter.on(Messages.KEY_EVENT_ENTER, () => {
 		resetGame();
-	});
-
-	eventEmitter.on(Messages.KEY_EVENT_UP, () => {
-		hero.y -= 5;
-	});
-
-	eventEmitter.on(Messages.KEY_EVENT_DOWN, () => {
-		hero.y += 5;
-	});
-
-	eventEmitter.on(Messages.KEY_EVENT_LEFT, () => {
-		hero.x -= 20;
-	});
-
-	eventEmitter.on(Messages.KEY_EVENT_RIGHT, () => {
-		hero.x += 20;
 	});
 
 	eventEmitter.on(Messages.KEY_EVENT_SPACE, () => {
@@ -357,6 +331,10 @@ function resetGame() {
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			ctx.fillStyle = 'black';
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			if (keysPressed['ArrowUp'])    hero.y -= 8;
+			if (keysPressed['ArrowDown'])  hero.y += 8;
+			if (keysPressed['ArrowLeft'])  hero.x -= 8;
+			if (keysPressed['ArrowRight']) hero.x += 8;
 			drawPoints();
 			drawLife();
 			updateGameObjects();
@@ -378,6 +356,10 @@ window.onload = async () => {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.fillStyle = 'black';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		if (keysPressed['ArrowUp'])    hero.y -= 8;
+		if (keysPressed['ArrowDown'])  hero.y += 8;
+		if (keysPressed['ArrowLeft'])  hero.x -= 8;
+		if (keysPressed['ArrowRight']) hero.x += 8;
 		drawPoints();
 		drawLife();
 		updateGameObjects();
